@@ -2,6 +2,7 @@
 
 import logging
 import weaviate
+import utils
 
 # ===== SET UP LOGGER =====
 logger = logging.getLogger(__name__)
@@ -15,6 +16,8 @@ root_logger.addHandler(sh)
 
 # Dataset to use:
 # https://www.kaggle.com/datasets/tunguz/200000-jeopardy-questions
+
+client_uri = utils.client_uri
 
 
 def add_schema(client):
@@ -58,7 +61,7 @@ def add_schema(client):
 
 def main():
 
-    client = weaviate.Client("http://localhost:8080")
+    client = weaviate.Client(client_uri)
     # If needed, you can delete your existing schema and data with the below line
     # THIS WILL DELETE YOUR EXISTING DATABASE!
     client.schema.delete_all()  # deletes all classes along with the whole data

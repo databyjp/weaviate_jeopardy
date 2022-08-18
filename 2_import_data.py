@@ -16,6 +16,8 @@ root_logger.addHandler(sh)
 # ===== END LOGGER SETUP =====
 
 
+client_uri = utils.client_uri
+
 def load_data():
     df = pd.read_csv('data/JEOPARDY_CSV.csv')
     df.columns = [c.strip().lower() for c in df.columns]
@@ -90,7 +92,7 @@ def import_data(client, df, cols, limit=100, use_batch=True):
 
 def main():
 
-    client = weaviate.Client("http://localhost:8080")
+    client = weaviate.Client(client_uri)
     df = load_data()
 
     print(f'DB size before import: {utils.get_db_size()}')

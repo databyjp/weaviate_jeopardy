@@ -13,9 +13,11 @@ sh.setFormatter(formatter)
 root_logger.addHandler(sh)
 # ===== END LOGGER SETUP =====
 
+client_uri = "http://localhost:8080"
+
 
 def get_db_size():
-    client = weaviate.Client("http://localhost:8080")
+    client = weaviate.Client(client_uri)
     result = client.query.aggregate("Question").with_fields('meta { count }').do()
     # print(result)
     return result['data']['Aggregate']['Question'][0]['meta']['count']

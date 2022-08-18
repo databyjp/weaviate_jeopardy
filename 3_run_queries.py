@@ -14,10 +14,10 @@ sh.setFormatter(formatter)
 root_logger.addHandler(sh)
 # ===== END LOGGER SETUP =====
 
+client_uri = utils.client_uri
 
-def query_example():
 
-    client = weaviate.Client("http://localhost:8080")
+def query_example(client):
 
     results = client.query.get(
         class_name='Question',
@@ -30,12 +30,10 @@ def query_example():
     return True
 
 
-def get_question(category_query=None, n_questions=5):
+def get_question(client, category_query=None, n_questions=5):
 
     if category_query == None:
         category_query = 'pop music'
-
-    client = weaviate.Client("http://localhost:8080")
 
     results = client.query.get(
         class_name='Question',
@@ -47,9 +45,7 @@ def get_question(category_query=None, n_questions=5):
     return results
 
 
-def agg_example():
-
-    client = weaviate.Client("http://localhost:8080")
+def agg_example(client):
 
     result = client.query.aggregate("Question")\
         .with_group_by_filter(["category"]) \
@@ -70,6 +66,7 @@ def build_question(question):
 
 
 def main():
+    client = weaviate.Client(client_uri)
     print(f"Getting results from our Jeopardy DB w/ {utils.get_db_size()} entries:")
     run_quiz = True
     while run_quiz:
@@ -78,7 +75,7 @@ def main():
             print('Byeeeeeee')
             break
         n_questions = 1
-        results = get_question(category_query=user_query, n_questions=n_questions)
+        results = get_question(client, category_query=user_query, n_questions=n_questions)
         if results is not None:
             for i in range(n_questions):
                 # print(results['data']['Get']['Question'][i])
