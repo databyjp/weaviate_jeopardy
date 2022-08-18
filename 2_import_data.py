@@ -16,8 +16,9 @@ root_logger.addHandler(sh)
 # ===== END LOGGER SETUP =====
 
 
-client_uri = utils.client_uri
-question_class = utils.question_class
+from utils import client_uri
+from utils import question_class
+
 
 def load_data():
     df = pd.read_csv('data/JEOPARDY_CSV.csv')
@@ -80,10 +81,13 @@ def import_data(client, df, cols, limit=100, use_batch=True):
         if use_batch:
             with client.batch as batch:
                 batch.add_data_object(object_props, question_class)
+                # # When setting a custom vector
+                # batch.add_data_object(object_props, "Question", vector=YOUR_VECTOR_HERE)
         else:
             client.data_object.create(
                 object_props,
                 question_class,
+                # vector=YOUR_VECTOR_HERE  # When setting a custom vector
             )
 
     finish_time = datetime.now()
@@ -99,10 +103,10 @@ def main():
 
     print(f'DB size before import: {utils.get_db_size()}')
 
-    cols = ["category", "round", "value", "clue", "answer"]
+    cols = ["category", "clue", "answer", "round", "value"]
 
     limit = len(df)
-    limit = 1000  # For testing
+    limit = 10000  # For speed
 
     import_data(client, df, cols, limit, use_batch=True)
 

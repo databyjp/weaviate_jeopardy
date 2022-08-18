@@ -19,9 +19,9 @@ question_class = "Question"
 
 def get_db_size():
     client = weaviate.Client(client_uri)
-    result = client.query.aggregate("Question").with_fields('meta { count }').do()
+    result = client.query.aggregate(question_class).with_fields('meta { count }').do()
     # print(result)
-    return result['data']['Aggregate']['Question'][0]['meta']['count']
+    return result['data']['Aggregate'][question_class][0]['meta']['count']
 
 
 def main():

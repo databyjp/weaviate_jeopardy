@@ -17,8 +17,8 @@ root_logger.addHandler(sh)
 # Dataset to use:
 # https://www.kaggle.com/datasets/tunguz/200000-jeopardy-questions
 
-client_uri = utils.client_uri
-question_class = utils.question_class
+from utils import client_uri
+from utils import question_class
 
 
 def add_schema(client):
@@ -34,16 +34,6 @@ def add_schema(client):
                 },
                 {
                     "dataType": ["string"],
-                    "description": "Round that the question was in",
-                    "name": "round"
-                },
-                {
-                    "dataType": ["string"],
-                    "description": "Points value of the question.",
-                    "name": "value"
-                },
-                {
-                    "dataType": ["string"],
                     "description": "Clue provided to the contestants",
                     "name": "clue"
                 },
@@ -51,6 +41,16 @@ def add_schema(client):
                     "dataType": ["string"],
                     "description": "The correct answer",
                     "name": "answer"
+                },
+                {
+                    "dataType": ["string"],
+                    "description": "Round that the question was in",
+                    "name": "round"
+                },
+                {
+                    "dataType": ["string"],
+                    "description": "Points value of the question.",
+                    "name": "value"
                 },
             ],
         }]

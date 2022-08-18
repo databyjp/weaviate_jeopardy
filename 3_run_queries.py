@@ -14,8 +14,8 @@ sh.setFormatter(formatter)
 root_logger.addHandler(sh)
 # ===== END LOGGER SETUP =====
 
-client_uri = utils.client_uri
-question_class = utils.question_class
+from utils import client_uri
+from utils import question_class
 
 
 def query_example(client):
@@ -42,7 +42,7 @@ def get_question(client, category_query=None, n_questions=5):
     ).with_limit(n_questions).with_near_text({
         "concepts": [category_query]
     }).with_additional(
-        ['id', 'distance']
+        ['distance']
     ).do()
 
     return results
@@ -77,8 +77,10 @@ def main():
 
         results = get_question(client, category_query=user_query, n_questions=n_questions)
         if results is not None:
+
             # for i in range(n_questions):
             #     print(results['data']['Get'][question_class][i])
+
             build_question(results['data']['Get'][question_class])
         else:
             print("Hmm, something went wrong... sorry!")
