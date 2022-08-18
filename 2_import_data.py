@@ -17,11 +17,13 @@ root_logger.addHandler(sh)
 
 
 client_uri = utils.client_uri
+question_class = utils.question_class
 
 def load_data():
     df = pd.read_csv('data/JEOPARDY_CSV.csv')
     df.columns = [c.strip().lower() for c in df.columns]
     df['value'] = df['value'].str.replace("$", "").str.replace(",", "").str.replace('None', '0')
+    df.rename({'question': 'clue'}, axis=1, inplace=True)
     return df
 
 
@@ -77,11 +79,11 @@ def import_data(client, df, cols, limit=100, use_batch=True):
         object_props = {c: df.iloc[i][c] for c in cols}
         if use_batch:
             with client.batch as batch:
-                batch.add_data_object(object_props, 'Question')
+                batch.add_data_object(object_props, question_class)
         else:
             client.data_object.create(
                 object_props,
-                "Question",
+                question_class,
             )
 
     finish_time = datetime.now()
@@ -97,10 +99,10 @@ def main():
 
     print(f'DB size before import: {utils.get_db_size()}')
 
-    cols = ["category", "round", "value", "question", "answer"]
+    cols = ["category", "round", "value", "clue", "answer"]
 
     limit = len(df)
-    limit = 10000  # For testing
+    limit = 1000  # For testing
 
     import_data(client, df, cols, limit, use_batch=True)
 

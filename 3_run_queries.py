@@ -15,12 +15,13 @@ root_logger.addHandler(sh)
 # ===== END LOGGER SETUP =====
 
 client_uri = utils.client_uri
+question_class = utils.question_class
 
 
 def query_example(client):
 
     results = client.query.get(
-        class_name='Question',
+        class_name=question_class,
         properties="answer"
     ).with_limit(5).with_near_text({
         "concepts": ["Miley Cyrus"]
@@ -36,8 +37,8 @@ def get_question(client, category_query=None, n_questions=5):
         category_query = 'pop music'
 
     results = client.query.get(
-        class_name='Question',
-        properties=["category", "question", "answer"]
+        class_name=question_class,
+        properties=["category", "clue", "answer"]
     ).with_limit(n_questions).with_near_text({
         "concepts": [category_query]
     }).with_additional(
@@ -55,7 +56,7 @@ def build_question(questions):
             print(f"\n(Note: This question had a vector distance of {question['_additional']['distance']})")
 
     print(f"\nThe category is {question['category']}.")
-    print(f"{question['question']}")
+    print(f"{question['clue']}")
     input("Press any key when you want to see the answer...")
     print(f"{question['answer']}")
     return True
@@ -77,8 +78,8 @@ def main():
         results = get_question(client, category_query=user_query, n_questions=n_questions)
         if results is not None:
             # for i in range(n_questions):
-            #     print(results['data']['Get']['Question'][i])
-            build_question(results['data']['Get']['Question'])
+            #     print(results['data']['Get'][question_class][i])
+            build_question(results['data']['Get'][question_class])
         else:
             print("Hmm, something went wrong... sorry!")
 

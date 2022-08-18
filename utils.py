@@ -14,6 +14,7 @@ root_logger.addHandler(sh)
 # ===== END LOGGER SETUP =====
 
 client_uri = "http://localhost:8080"
+question_class = "Question"
 
 
 def get_db_size():
