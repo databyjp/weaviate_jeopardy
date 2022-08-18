@@ -40,24 +40,20 @@ def get_question(client, category_query=None, n_questions=5):
         properties=["category", "question", "answer"]
     ).with_limit(n_questions).with_near_text({
         "concepts": [category_query]
-    }).do()
+    }).with_additional(
+        ['id', 'distance']
+    ).do()
 
     return results
 
 
-def agg_example(client):
+def build_question(questions):
+    import random
+    question = random.choice(questions)
+    if '_additional' in question.keys():
+        if 'distance' in question['_additional'].keys():
+            print(f"\n(Note: This question had a vector distance of {question['_additional']['distance']})")
 
-    result = client.query.aggregate("Question")\
-        .with_group_by_filter(["category"]) \
-        .with_fields('meta { count } category { topOccurrences { value } }') \
-        .do()
-
-    print(result)
-
-    return True
-
-
-def build_question(question):
     print(f"\nThe category is {question['category']}.")
     print(f"{question['question']}")
     input("Press any key when you want to see the answer...")
@@ -68,18 +64,21 @@ def build_question(question):
 def main():
     client = weaviate.Client(client_uri)
     print(f"Getting results from our Jeopardy DB w/ {utils.get_db_size()} entries:")
+
     run_quiz = True
     while run_quiz:
         user_query = input("\nSuggest a topic! (like 'athletes', or 'pop stars'), press q to quit: ")
         if user_query == 'q':
             print('Byeeeeeee')
             break
-        n_questions = 1
+
+        n_questions = 5  # Get multiple answers, just to randomise the question selection
+
         results = get_question(client, category_query=user_query, n_questions=n_questions)
         if results is not None:
-            for i in range(n_questions):
-                # print(results['data']['Get']['Question'][i])
-                build_question(results['data']['Get']['Question'][i])
+            # for i in range(n_questions):
+            #     print(results['data']['Get']['Question'][i])
+            build_question(results['data']['Get']['Question'])
         else:
             print("Hmm, something went wrong... sorry!")
 
