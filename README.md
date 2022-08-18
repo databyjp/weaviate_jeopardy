@@ -18,7 +18,7 @@ First, we’ll show you first-hand how easily and quickly you can add large amou
 
 By combining these two aspects, Weaviate lets you quickly find the information that you want, as well as discover relevant information that you might not have known about.
 
-But before we get started, let’s talk briefly about what a vector search engine is. If you’re familiar with them - you can skip to the next section [LINK TO OR NAME OF THE NEXT SECTION].
+But before we get started, let’s talk briefly about what a vector search engine is. If you’re familiar with them - you can skip to the next section, called "Let's become a quiz master".
 
 ### What is a vector search engine?
 
@@ -36,7 +36,7 @@ Weaviate's technologies allow organisations to keep up with ever-growing volumes
 
 Weaviate also includes a host of other features to convert your existing data to a searchable database with ease and speed. Let’s take a look.
 
-## Building the Weaviate quiz machinary
+## Let's become a quiz master
 
 Now let's populate a Weaviate database, which we will be using for our search example later on. For the purposes of this exercise, we’ll assume that you have set up a Weaviate instance by following the “[Installation](https://weaviate.io/developers/weaviate/current/getting-started/installation.html)” guide. The below is the setup which I used at the time of writing.
 ![image](img/weaviate_setup.png)
@@ -48,7 +48,7 @@ We will be using a [publicly available dataset](https://www.kaggle.com/datasets/
 In this section, we will show you how to:
 
 - Create a database schema
-- (Bulk) Import our data, and
+- (Batch) Import our data, and
 - Verify the data
 
 By the end of this section, you will have a Weaviate database full of impressive trivia from *Jeopardy*, ready for us to trawl through.
@@ -118,7 +118,7 @@ We don’t yet have any data in our database yet, however. So let’s get to add
 
 Weaviate offers multiple ways to add data to our database. Using the `client.data_object.create` method will allow addition of an individual object to the database.
 
-For adding many data objects in bulk, you should use batch import methods as much as possible for the best performance. Bulk importing data is quite simple - we simply need to configure a few parameters for the batch importer:
+For adding many data objects at once, you should use batch import methods as much as possible for the best performance. Batch importing data is quite simple - we simply need to configure a few parameters for the batch importer:
 
 ```python
 import weaviate
@@ -147,7 +147,7 @@ batch.add_data_object(object_props, "Question")
 # batch.add_data_object(object_props, "Question", vector=YOUR_VECTOR_HERE)
 ```
 
-Where o`bject_props` is a dictionary of properties corresponding to the schema, such as “category", "clue" and “answer".
+Where `object_props` is a dictionary of properties corresponding to the schema, such as “category", "clue" and “answer".
 
 This way, Weaviate’s batch importer will be able to perform the vectorisation as well as database object creation in batches. Running this function will begin to populate our database with the quiz items.
 
