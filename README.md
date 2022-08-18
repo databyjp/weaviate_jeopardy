@@ -1,5 +1,8 @@
 # Getting started with Weaviate and Python
 ### Learn by building a quiz program!
+In this demo, we will show you how to build an intelligent search engine with Weaviate. By the end of the demo, you will have built a quiz app like below, where you can search for a topic of your preference, and test your skills against real questions from Jeopardy!
+
+![Image](img/weaviate_quiz_demo.gif)
 
 ## Introduction
 

@@ -64,7 +64,7 @@ def build_question(questions):
 
 def main():
     client = weaviate.Client(client_uri)
-    print(f"Getting results from our Jeopardy DB w/ {utils.get_db_size()} entries:")
+    print(f"Getting results from our Weaviate quiz DB w/ {utils.get_db_size()} entries:")
 
     run_quiz = True
     while run_quiz:
