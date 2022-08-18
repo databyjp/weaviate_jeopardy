@@ -1,10 +1,9 @@
 # ========== (c) JP Hwang 16/8/2022  ==========
 
 import logging
-import pandas as pd
-import numpy as np
 import weaviate
 
+# ===== SET UP LOGGER =====
 logger = logging.getLogger(__name__)
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
@@ -12,10 +11,7 @@ sh = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 sh.setFormatter(formatter)
 root_logger.addHandler(sh)
-
-desired_width = 320
-pd.set_option('display.max_columns', 20)
-pd.set_option('display.width', desired_width)
+# ===== END LOGGER SETUP =====
 
 
 def query_example():
@@ -33,6 +29,24 @@ def query_example():
     return True
 
 
+def get_question(category_query=None):
+
+    if category_query == None:
+        category_query = 'pop music'
+
+    client = weaviate.Client("http://localhost:8080")
+
+    results = client.query.get(
+        class_name='Question',
+        properties="category"
+    ).with_limit(5).with_near_text({
+        "concepts": [category_query]
+    }).do()
+    print(results)
+
+    return results
+
+
 def get_db_size():
     client = weaviate.Client("http://localhost:8080")
     result = client.query.aggregate("Question").with_fields('meta { count }').do()
@@ -41,8 +55,6 @@ def get_db_size():
 
 
 def agg_example():
-
-    # result = client.query.aggregate("Question").with_fields('meta { count }').do()
 
     client = weaviate.Client("http://localhost:8080")
 
@@ -58,6 +70,10 @@ def agg_example():
 
 def main():
     print(get_db_size())
+    get_question(category_query='NFL football')
+    get_question(category_query='Australian history')
+    get_question(category_query='Cute Koalas')
+
     return True
 
 
