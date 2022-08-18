@@ -7,7 +7,7 @@ Let’s start with a simple analogy. Imagine going to a shop and asking if they 
 
 And the fact is, we don’t always know the exact words to search for, even when we have a good understanding of the concept. But a good vector search engine like Weaviate’s can make this a problem of the past.
 
-## Outline
+### Tutorial Outline
 
 In this tutorial, you will see first-hand how Weaviate can help you organise and sift through huge amounts of complex text information at speed.
 
@@ -17,7 +17,7 @@ By combining these two aspects, Weaviate lets you quickly find the information t
 
 But before we get started, let’s talk briefly about what a vector search engine is. If you’re familiar with them - you can skip to the next section [LINK TO OR NAME OF THE NEXT SECTION].
 
-## What is a vector search engine?
+### What is a vector search engine?
 
 Simply put, a vector search engine allows searching based on conceptual similarities. You can probably imagine how this works. Think about words that sound nothing alike, but have very similar meanings. Word pairs like:
 
@@ -33,9 +33,10 @@ Weaviate's technologies allow organisations to keep up with ever-growing volumes
 
 Weaviate also includes a host of other features to convert your existing data to a searchable database with ease and speed. Let’s take a look.
 
-## Import data
+## Building the Weaviate quiz machinary
 
-Now let's populate a Weaviate database, which we will be using for our search example later on. For the purposes of this exercise, we’ll assume that you have set up a Weaviate instance by following the “[Installation](https://weaviate.io/developers/weaviate/current/getting-started/installation.html)” guide.
+Now let's populate a Weaviate database, which we will be using for our search example later on. For the purposes of this exercise, we’ll assume that you have set up a Weaviate instance by following the “[Installation](https://weaviate.io/developers/weaviate/current/getting-started/installation.html)” guide. The below is the setup which I used at the time of writing.
+![image](img/weaviate_setup.png)
 
 We will be using a [publicly available dataset](https://www.kaggle.com/datasets/tunguz/200000-jeopardy-questions) of questions and answers from the quiz show *Jeopardy*. If you are new to *Jeopardy*, it's a long-running American quiz show where the clue is in the form of an answer, and the contestants must identify the right question that the answer is related to.
 
@@ -49,7 +50,7 @@ In this section, we will show you how to:
 
 By the end of this section, you will have a Weaviate database full of impressive trivia from *Jeopardy*, ready for us to trawl through.
 
-#### Create a schema
+### Create a schema
 
 First of all we need to define a schema, or structure, for the database. We’ll keep it fairly simple here.
 
@@ -63,7 +64,7 @@ So that we can later compile and run a quiz ourselves.
 
 The schema definition in Python looks like this:
 
-```other
+```python
 schema = {
     "classes": [{
         "class": "Question",
@@ -91,7 +92,7 @@ schema = {
 
 And then to create the schema, we simply need to establish a connection to the Weaviate instance via a client, and create the schema:
 
-```other
+```python
 import weaviate
 client_uri = "http://localhost:8080"
 client = weaviate.Client(client_uri)
@@ -102,7 +103,7 @@ Once completed, you can go to `http://localhost:8080/v1/schema` to verify that t
 
 Note that if there is an existing schema for the same name, it can be deleted by:
 
-```other
+```python
 client.schema.delete_class("Question")
 ```
 
@@ -110,13 +111,13 @@ client.schema.delete_class("Question")
 
 We don’t yet have any data in our database yet, however. So let’s get to adding that.
 
-#### Import data
+### Import data
 
 Weaviate offers multiple ways to add data to our database. Using the `client.data_object.create` method will allow addition of an individual object to the database.
 
 For adding many data objects in bulk, you should use batch import methods as much as possible for the best performance. Bulk importing data is quite simple - we simply need to configure a few parameters for the batch importer:
 
-```other
+```python
 import weaviate
 client_uri = "http://localhost:8080"
 
@@ -135,7 +136,7 @@ client.batch.configure(
 
 And then add data objects to the batch importer like so:
 
-```other
+```python
 # When using a vectoriser
 batch.add_data_object(object_props, "Question")
 
@@ -151,7 +152,7 @@ We note that for GPU-intensive vectorisers such as transformer models, you shoul
 
 Once our data import is complete, we can check the size of our database with a simple aggregate query such as this:
 
-```other
+```python
 client = weaviate.Client("http://localhost:8080")
 result = client.query.aggregate("Question").with_fields('meta { count }').do()
 print(result)
@@ -165,7 +166,7 @@ Now we are ready to search through the database, and even play a few rounds of t
 
 > Note: An implementation of this section can be found in `2_import_data.py` in the git repository. The script is by default set up to only import the first 10,000 rows - you can remove that limit by commenting out the `limit = 10000` line.
 
-## Run a search (i.e. shall we play a game?)
+### Run a search (i.e. shall we play a game?)
 
 By now, we should have:
 
@@ -180,7 +181,7 @@ The `client.query.get` function provides a simple interface to perform searches.
 
 You might run a query like this:
 
-```other
+```python
 results = client.query.get(
     class_name="Question",
     properties=["category", "clue", "answer"]
@@ -191,7 +192,7 @@ results = client.query.get(
 
 The below is one example set of answers:
 
-```other
+```python
 {'answer': 'Istanbul', 'category': 'EU, THE EUROPEAN UNION', 'clue': 'Each year the EU selects capitals of culture; one of the 2010 cities was this Turkish "meeting place of cultures"'}
 {'answer': 'Baltic', 'category': 'FROM B TO C', 'clue': 'Branch of the Indo-European family of languages'}
 {'answer': 'Italy', 'category': 'EUROPE', 'clue': '19th century Sardinia took the lead in unifying this country'}
@@ -205,7 +206,7 @@ Instead of finding the lemma of the word “history” to capture all words like
 
 Weaviate can also return the vector “distance” between the query and the returned objects, such that you can review how similar the resulting hits are, or set a threshold for the objects to be viewed.
 
-```other
+```python
 results = client.query.get(
     class_name="Question",
     properties=["category", "clue", "answer"]
@@ -218,7 +219,7 @@ results = client.query.get(
 
 And the resulting output might look like this:
 
-```other
+```python
 {'_additional': {'distance': 0.17267555}, 'answer': 'Istanbul', 'category': 'EU, THE EUROPEAN UNION', 'clue': 'Each year the EU selects capitals of culture; one of the 2010 cities was this Turkish "meeting place of cultures"'}
 {'_additional': {'distance': 0.18340677}, 'answer': 'Baltic', 'category': 'FROM B TO C', 'clue': 'Branch of the Indo-European family of languages'}
 {'_additional': {'distance': 0.2152527}, 'answer': 'Italy', 'category': 'EUROPE', 'clue': '19th century Sardinia took the lead in unifying this country'}
@@ -230,7 +231,7 @@ This means that where there are no or very few search results, the user can be a
 
 Using these results, we can build our own trivia game - we can simply take an input from a user, and construct a query which will return a set of Question objects.
 
-```other
+```python
 import weaviate
 client = weaviate.Client("http://localhost:8080")
 
@@ -255,7 +256,7 @@ Where the returned objects are saved on to the `results` variable.
 
 From this point on, it is simply a matter of rearranging the returned collection of data to construct a quiz. To add a little bit of variety, we’ll add a randomiser which will choose between a number of candidate questions:
 
-```other
+```python
 def build_question(questions):
 
     import random
@@ -273,7 +274,7 @@ def build_question(questions):
 
 This function, called as `build_question(results)`  using the output from above, will return an interactive quiz such as this:
 
-```other
+```python
 Suggest a topic! (like 'athletes', or 'pop stars'), press q to quit: european history
 
 (Note: This question had a vector distance of 0.18340677)
@@ -285,7 +286,7 @@ Press any key when you want to see the answer...
 
 Where upon pressing a key, you should see:
 
-```other
+```python
 Baltic
 ```
 

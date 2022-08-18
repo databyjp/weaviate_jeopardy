@@ -2,7 +2,6 @@
 
 import logging
 import weaviate
-import utils
 
 # ===== SET UP LOGGER =====
 logger = logging.getLogger(__name__)
@@ -64,8 +63,10 @@ def main():
 
     client = weaviate.Client(client_uri)
 
-    # If needed, you can delete your existing schema and data with the below line
-    client.schema.delete_class(question_class)
+    # Delete existing schema for "Question" and data with the below line
+    classes = client.schema.get()
+    if question_class in classes['classes']:
+        client.schema.delete_class(question_class)
     add_schema(client)
 
     return True

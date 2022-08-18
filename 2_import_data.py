@@ -106,7 +106,7 @@ def main():
     cols = ["category", "clue", "answer", "round", "value"]
 
     limit = len(df)
-    limit = 10000  # For speed
+    limit = 10000  # Only import some for speed
 
     import_data(client, df, cols, limit, use_batch=True)
 
