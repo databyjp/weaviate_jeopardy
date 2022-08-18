@@ -2,6 +2,7 @@
 
 import logging
 import weaviate
+import utils
 
 # ===== SET UP LOGGER =====
 logger = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ def query_example():
     return True
 
 
-def get_question(category_query=None):
+def get_question(category_query=None, n_questions=5):
 
     if category_query == None:
         category_query = 'pop music'
@@ -38,20 +39,12 @@ def get_question(category_query=None):
 
     results = client.query.get(
         class_name='Question',
-        properties="category"
-    ).with_limit(5).with_near_text({
+        properties=["category", "question", "answer"]
+    ).with_limit(n_questions).with_near_text({
         "concepts": [category_query]
     }).do()
-    print(results)
 
     return results
-
-
-def get_db_size():
-    client = weaviate.Client("http://localhost:8080")
-    result = client.query.aggregate("Question").with_fields('meta { count }').do()
-    # print(result)
-    return result['data']['Aggregate']['Question'][0]['meta']['count']
 
 
 def agg_example():
@@ -68,11 +61,30 @@ def agg_example():
     return True
 
 
+def build_question(question):
+    print(f"\nThe category is {question['category']}.")
+    print(f"{question['question']}")
+    input("Press any key when you want to see the answer...")
+    print(f"{question['answer']}")
+    return True
+
+
 def main():
-    print(get_db_size())
-    get_question(category_query='NFL football')
-    get_question(category_query='Australian history')
-    get_question(category_query='Cute Koalas')
+    print(f"Getting results from our Jeopardy DB w/ {utils.get_db_size()} entries:")
+    run_quiz = True
+    while run_quiz:
+        user_query = input("\nSuggest a topic! (like 'athletes', or 'pop stars'), press q to quit: ")
+        if user_query == 'q':
+            print('Byeeeeeee')
+            break
+        n_questions = 1
+        results = get_question(category_query=user_query, n_questions=n_questions)
+        if results is not None:
+            for i in range(n_questions):
+                # print(results['data']['Get']['Question'][i])
+                build_question(results['data']['Get']['Question'][i])
+        else:
+            print("Hmm, something went wrong... sorry!")
 
     return True
 

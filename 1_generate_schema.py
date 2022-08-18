@@ -17,10 +17,7 @@ root_logger.addHandler(sh)
 # https://www.kaggle.com/datasets/tunguz/200000-jeopardy-questions
 
 
-def main():
-
-    client = weaviate.Client("http://localhost:8080")
-
+def add_schema(client):
     schema = {
         "classes": [{
             "class": "Question",
@@ -56,6 +53,17 @@ def main():
     }
 
     client.schema.create(schema)
+    return None
+
+
+def main():
+
+    client = weaviate.Client("http://localhost:8080")
+    # If needed, you can delete your existing schema and data with the below line
+    # THIS WILL DELETE YOUR EXISTING DATABASE!
+    client.schema.delete_all()  # deletes all classes along with the whole data
+    add_schema(client)
+
 
     return True
 

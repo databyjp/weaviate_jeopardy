@@ -3,6 +3,7 @@
 import logging
 import pandas as pd
 import weaviate
+import utils
 
 # ===== SET UP LOGGER =====
 logger = logging.getLogger(__name__)
@@ -20,28 +21,6 @@ def load_data():
     df.columns = [c.strip().lower() for c in df.columns]
     df['value'] = df['value'].str.replace("$", "").str.replace(",", "").str.replace('None', '0')
     return df
-
-
-def import_simple(client, df, cols, limit=100):
-
-    if len(df) < limit or limit == None:
-        limit = len(df)
-
-    from datetime import datetime
-    start_time = datetime.now()
-
-    for i in range(limit):
-        object_props = {c: df.iloc[i][c] for c in cols}
-
-        client.data_object.create(
-            object_props,
-            "Question",
-        )
-
-    finish_time = datetime.now()
-    elapsed_time = finish_time - start_time
-    print(elapsed_time)
-    return True
 
 
 def check_batch_result(results: dict):
@@ -62,30 +41,46 @@ def check_batch_result(results: dict):
     return None
 
 
-def import_batch(client, df, cols, limit=100):
-
-    if len(df) < limit or limit == None:
+def import_data(client, df, cols, limit=100, use_batch=True):
+    """
+    Import data using batches
+    :param client:
+    :param df:
+    :param cols: Column mapping between input DataFrame & DB
+    :param limit: N rows
+    :param use_batch: Boolean - use batches or not
+    :return:
+    """
+    if len(df) < limit or limit is None:
         limit = len(df)
+    print(f'Importing {limit} entries... please wait.')
 
     from datetime import datetime
     start_time = datetime.now()
 
-    client.batch.configure(
-        # `batch_size` takes an `int` value to enable auto-batching
-        # (`None` is used for manual batching)
-        batch_size=100,
-        # dynamically update the `batch_size` based on import speed
-        dynamic=False,
-        # `timeout_retries` takes an `int` value to retry on time outs
-        timeout_retries=3,
-        # checks for batch-item creation errors
-        callback=check_batch_result,
-    )
+    if use_batch:
+        client.batch.configure(
+            # `batch_size` takes an `int` value to enable auto-batching
+            # (`None` is used for manual batching)
+            batch_size=100,
+            # dynamically update the `batch_size` based on import speed
+            dynamic=False,
+            # `timeout_retries` takes an `int` value to retry on time outs
+            timeout_retries=3,
+            # checks for batch-item creation errors
+            callback=check_batch_result,
+        )
 
     for i in range(limit):
         object_props = {c: df.iloc[i][c] for c in cols}
-        with client.batch as batch:
-            batch.add_data_object(object_props, 'Question')
+        if use_batch:
+            with client.batch as batch:
+                batch.add_data_object(object_props, 'Question')
+        else:
+            client.data_object.create(
+                object_props,
+                "Question",
+            )
 
     finish_time = datetime.now()
     elapsed_time = finish_time - start_time
@@ -94,12 +89,20 @@ def import_batch(client, df, cols, limit=100):
 
 
 def main():
-    client = weaviate.Client("http://localhost:8080")
 
+    client = weaviate.Client("http://localhost:8080")
     df = load_data()
+
+    print(f'DB size before import: {utils.get_db_size()}')
+
     cols = ["category", "round", "value", "question", "answer"]
 
-    import_batch(client, df, cols, 10000)
+    limit = len(df)
+    limit = 10000  # For testing
+
+    import_data(client, df, cols, limit, use_batch=True)
+
+    print(f'DB size after import: {utils.get_db_size()}')
 
     return True
 

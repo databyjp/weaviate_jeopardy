@@ -1,4 +1,4 @@
-# ========== (c) JP Hwang 16/8/2022  ==========
+# ========== (c) JP Hwang 18/8/2022  ==========
 
 import logging
 import weaviate
@@ -14,11 +14,14 @@ root_logger.addHandler(sh)
 # ===== END LOGGER SETUP =====
 
 
-def main():
-
+def get_db_size():
     client = weaviate.Client("http://localhost:8080")
-    client.schema.delete_all()  # deletes all classes along with the whole data
+    result = client.query.aggregate("Question").with_fields('meta { count }').do()
+    # print(result)
+    return result['data']['Aggregate']['Question'][0]['meta']['count']
 
+
+def main():
     return True
 
 
