@@ -17,6 +17,7 @@ pd.set_option('display.max_columns', 20)
 pd.set_option('display.width', desired_width)
 
 # Dataset to use:
+# https://www.kaggle.com/datasets/tunguz/200000-jeopardy-questions
 
 def main():
 
@@ -26,53 +27,33 @@ def main():
 
     schema = {
         "classes": [{
-            "class": "Publication",
-            "description": "A publication with an online source",
+            "class": "Question",
+            "description": "A Jeopardy! question with an answer",
             "properties": [
                 {
                     "dataType": ["string"],
-                    "description": "The title of the publication",
-                    "name": "name"
+                    "description": "Category or topic of the question",
+                    "name": "category"
                 },
-                {
-                    "dataType": ["Review"],
-                    "description": "The reviews this publication has",
-                    "name": "hasArticles"
-                },
-            ],
-        }, {
-            "class": "Review",
-            "description": "A movie review",
-            "properties": [
                 {
                     "dataType": ["string"],
-                    "description": "The title of the review",
-                    "name": "title"
+                    "description": "Round that the question was in",
+                    "name": "round"
                 },
-                {
-                    "dataType": ["text"],
-                    "description": "The body of the review",
-                    "name": "body"
-                },
-            ],
-        }, {
-            "class": "Critic",
-            "description": "The reviewer",
-            "properties": [
                 {
                     "dataType": ["string"],
-                    "description": "Reviewer's name",
-                    "name": "name"
+                    "description": "Points value of the question.",
+                    "name": "value"
                 },
                 {
-                    "dataType": ["Review"],
-                    "description": "Reviews the critic has written",
-                    "name": "reviewsWritten"
+                    "dataType": ["string"],
+                    "description": "Clue provided to the contestants",
+                    "name": "question"
                 },
                 {
-                    "dataType": ["Publication"],
-                    "description": "Publications the critic writes for",
-                    "name": "writesFor"
+                    "dataType": ["string"],
+                    "description": "The correct answer",
+                    "name": "answer"
                 },
             ],
         }]

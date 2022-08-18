@@ -3,6 +3,7 @@
 import logging
 import pandas as pd
 import numpy as np
+import weaviate
 
 logger = logging.getLogger(__name__)
 root_logger = logging.getLogger()
@@ -17,42 +18,33 @@ pd.set_option('display.max_columns', 20)
 pd.set_option('display.width', desired_width)
 
 
-def add_pub():
-    import weaviate
-
-    client = weaviate.Client("http://localhost:8080")
-    example_data = {
-        "name": "New York Times"
-    }
-    client.data_object.create(
-        example_data,
-        "Publication",
-        "f81bfe5e-16ba-4615-a516-46c2ae2e5a80"
-    )
-    return True
+def load_data():
+    df = pd.read_csv('data/JEOPARDY_CSV.csv')
+    df.columns = [c.strip().lower() for c in df.columns]
+    df['value'] = df['value'].str.replace("$", "").str.replace(",", "").str.replace('None', '0')
+    return df
 
 
 def main():
-    add_pub()
-    import weaviate
-
     client = weaviate.Client("http://localhost:8080")
 
-    example_data = {
-        "name": "Stephen Holden"
-    }
+    df = load_data()
+    cols = ["category", "round", "value", "question", "answer"]
 
-    client.data_object.create(
-        example_data,
-        "Critic",
-        uuid="36ddd591-2dee-4e7e-a3cc-eb86d30a4301"
-    )
+    from datetime import datetime
+    start_time = datetime.now()
 
-    client.data_object.reference.add(
-        "36ddd591-2dee-4e7e-a3cc-eb86d30a4301",
-        "writesFor",
-        "f81bfe5e-16ba-4615-a516-46c2ae2e5a80"
-    )
+    for i in range(100):
+        example_data = {c: df.iloc[i][c] for c in cols}
+
+        client.data_object.create(
+            example_data,
+            "Question",
+        )
+
+    finish_time = datetime.now()
+    elapsed_time = finish_time - start_time
+    print(elapsed_time)
 
     return True
 
